@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartão de Visitas - Bramex</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #d4ffce, #ffffff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* Bandeiras nas laterais */
+        .flag-left, .flag-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .flag-left {
+            left: -40px;
+        }
+
+        .flag-right {
+            right: -40px;
+        }
+
+        /* Logo dentro de um círculo preto */
+        .logo {
+            margin: 30mm 0 10mm 0;
+            border-radius: 50%;
+            padding: 10px;
+            background-color: #000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 150px;
+            width: 100%;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 50%;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d2d2d;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .locations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .location-box {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s, color 0.3s;
+            color: #333;
+        }
+
+        .location-box:hover {
+            background-color: #e8ffe8;
+            transform: translateY(-5px);
+        }
+
+        .location-box.active {
+            background-color: #0066ff;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .location-box.active:hover {
+            background-color: #0057e7;
+        }
+
+        #map-container {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        footer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+
+        /* Ajustes para telas pequenas */
+        @media screen and (max-width: 600px) {
+            .card {
+                padding: 15px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .logo {
+                margin: 15mm 0;
+                max-width: 120px;
+            }
+
+            .location-box {
+                font-size: 14px;
+            }
+
+            .flag-left, .flag-right {
+                width: 40px;
+                height: 40px;
+                left: -30px;
+                right: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Bandeiras Laterais -->
+        <div class="flag-left" id="flag-country"></div>
+        <div class="flag-right" id="flag-city"></div>
+
+        <!-- Logo -->
+        <div class="logo">
+            <img src="logo_bramex.jpeg" alt="Bramex Logo">
+        </div>
+
+        <!-- Título -->
+        <div class="title" id="title">Nossas Sucursais</div>
+
+        <!-- Localizações -->
+        <div class="locations">
+            <div class="location-box active" data-lat="-23.5505" data-lng="-46.6333" data-country="br" data-city="sao-paulo">São Paulo, Brasil</div>
+            <div class="location-box" data-lat="-22.9068" data-lng="-43.1729" data-country="br" data-city="rio">Rio de Janeiro, Brasil</div>
+            <div class="location-box" data-lat="-34.6037" data-lng="-58.3816" data-country="ar" data-city="buenos-aires">Buenos Aires, Argentina</div>
+            <div class="location-box" data-lat="19.4326" data-lng="-99.1332" data-country="mx" data-city="mexico">Cidade do México, México</div>
+            <div class="location-box" data-lat="40.7128" data-lng="-74.0060" data-country="us" data-city="new-york">Nova York, EUA</div>
+            <div class="location-box" data-lat="51.5074" data-lng="-0.1278" data-country="gb" data-city="london">Londres, Reino Unido</div>
+            <div class="location-box" data-lat="48.8566" data-lng="2.3522" data-country="fr" data-city="paris">Paris, França</div>
+            <div class="location-box" data-lat="35.6762" data-lng="139.6503" data-country="jp" data-city="tokyo">Tóquio, Japão</div>
+            <div class="location-box" data-lat="41.9028" data-lng="12.4964" data-country="it" data-city="roma">Roma, Itália</div>
+            <div class="location-box" data-lat="-33.8688" data-lng="151.2093" data-country="au" data-city="sydney">Sydney, Austrália</div>
+            <div class="location-box" data-lat="34.0522" data-lng="-118.2437" data-country="us" data-city="los-angeles">Los Angeles, EUA</div>
+            <div class="location-box" data-lat="-23.5505" data-lng="-46.6333" data-country="br" data-city="sao-paulo">São Paulo, Brasil</div>
+            <!-- Adicione mais localizações aqui, se necessário -->
+        </div>
+
+        <!-- Mapa -->
+        <div id="map-container"></div>
+
+        <!-- Rodapé -->
+        <footer>
+            © 2024 Bramex. Todos os direitos reservados.
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map-container').setView([-23.5505, -46.6333], 10);  // Mapa começa em São Paulo
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        const locations = document.querySelectorAll('.location-box');
+        const title = document.getElementById('title');
+        const flagCountry = document.getElementById('flag-country');
+        const flagCity = document.getElementById('flag-city');
+
+        const languageTitles = {
+            br: 'Nossas Sucursais',
+            ar: 'Nuestras Sucursales',
+            co: 'Nuestras Sucursales',
+            pa: 'Nuestras Sucursales',
+            mx: 'Nuestras Sucursales',
+            us: 'Our Locations',
+            il: 'מיקומים שלנו',
+        };
+
+        const flags = {
+            br: 'url(https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg)',
+            ar: 'url(https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg)',
+            co: 'url(https://upload.wikimedia.org/wikipedia/commons/a/a1/Flag_of_Colombia.svg)',
+            pa: 'url(https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Panama.svg)',
+            mx: 'url(https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg)',
+            us: 'url(https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg)',
+            il: 'url(https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_Israel.svg)',
+        };
+
+        function updateLocation(lat, lng, country, city) {
+            map.setView([lat, lng], 10);
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup(`${city.charAt(0).toUpperCase() + city.slice(1)}, ${country.toUpperCase()}`).openPopup();
+
+            title.textContent = languageTitles[country] || 'Our Locations';
+            flagCountry.style.backgroundImage = flags[country];
+            flagCity.style.backgroundImage = flags[country];
+        }
+
+        locations.forEach(location => {
+            location.addEventListener('click', () => {
+                const lat = location.getAttribute('data-lat');
+                const lng = location.getAttribute('data-lng');
+                const country = location.getAttribute('data-country');
+                const city = location.getAttribute('data-city');
+
+                // Atualizar localização
+                updateLocation(lat, lng, country, city);
+
+                // Atualiza a classe active
+                locations.forEach(loc => loc.classList.remove('active'));
+                location.classList.add('active');
+            });
+        });
+
+        // Inicializa com a localização de São Paulo
+        updateLocation(-23.5505, -46.6333, 'br', 'sao-paulo');
+
+        // Ajuste do layout com base no dispositivo
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('mobile');
+            document.querySelector('.logo').style.maxWidth = '100px'; // Reduz o logo em dispositivos móveis
+        } else {
+            document.body.classList.remove('mobile');
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                document.body.classList.add('mobile');
+            } else {
+                document.body.classList.remove('mobile');
+            }
+        });
+    </script>
+</body>
+</html>
+
