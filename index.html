@@ -15,6 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column;
         }
 
         .card {
@@ -37,8 +38,8 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background-size: cover;
             background-position: center;
             border-radius: 50%;
@@ -46,24 +47,24 @@
         }
 
         .flag-left {
-            left: -50px;
+            left: -40px;
         }
 
         .flag-right {
-            right: -50px;
+            right: -40px;
         }
 
         /* Logo dentro de um círculo preto */
         .logo {
-            margin: 30mm 0 10mm 0; /* Moved logo further down */
+            margin: 30mm 0 10mm 0;
             border-radius: 50%;
             padding: 10px;
-            background-color: #000;  /* Cor preta para o fundo */
+            background-color: #000;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .logo img {
-            max-width: 200px; /* Tamanho do logotipo */
+            max-width: 150px;  /* Ajuste do tamanho do logo */
             height: auto;
             border-radius: 50%;
         }
@@ -92,7 +93,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             text-align: center;
-            transition: background-color 0.3s, transform 0.3s;
+            transition: background-color 0.3s, transform 0.3s, color 0.3s;
+            color: #333;
         }
 
         .location-box:hover {
@@ -101,8 +103,13 @@
         }
 
         .location-box.active {
+            background-color: #0066ff;
             color: white;
             transform: scale(1.05);
+        }
+
+        .location-box.active:hover {
+            background-color: #0057e7;
         }
 
         #map-container {
@@ -116,6 +123,19 @@
             font-size: 12px;
             color: #777;
             text-align: center;
+        }
+
+        /* Ajustes para telas pequenas */
+        @media screen and (max-width: 600px) {
+            .card {
+                padding: 15px;
+            }
+            .title {
+                font-size: 20px;
+            }
+            .location-box {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -178,7 +198,7 @@
             ar: 'Nuestras Sucursales',
             co: 'Nuestras Sucursales',
             pa: 'Nuestras Sucursales',
-            mx: 'Sucursales en México',
+            mx: 'Nuestras Sucursales',
             us: 'Our Locations',
             il: 'מיקומים שלנו',
         };
@@ -221,16 +241,11 @@
                 // Atualizar localização
                 updateLocation(lat, lng, country, city);
 
-                // Atualizar bordas laterais
-                document.querySelector('.flag-left').style.backgroundColor = getComputedStyle(location).backgroundColor;
-                document.querySelector('.flag-right').style.backgroundColor = getComputedStyle(location).backgroundColor;
-
-                // Atualizar cor do botão
-                locations.forEach(box => box.classList.remove('active'));
+                // Atualiza a classe active
+                locations.forEach(loc => loc.classList.remove('active'));
                 location.classList.add('active');
             });
         });
     </script>
 </body>
 </html>
-
